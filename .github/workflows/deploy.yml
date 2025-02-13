@@ -58,6 +58,9 @@ jobs:
           port: 22
           script: |
             docker pull ${{ secrets.DOCKER_USERNAME }}/hellozj-web:${{ github.sha }}
-            docker stop hellozj-web || true
-            docker rm hellozj-web || true
+              # 检查容器是否存在
+            if docker ps -a --filter "name=hellozj-web" | grep -q hellozj-web; then
+              docker stop hellozj-web || true
+              docker rm hellozj-web || true
+            fi
             docker run -d --name hellozj-web -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/hellozj-web:${{ github.sha }}
