@@ -1,5 +1,5 @@
 # 使用官方的 Node.js 镜像作为构建环境
-FROM node:16-alpine AS builder
+FROM node:18-alpine AS builder
 
 # 设置工作目录
 WORKDIR /app
