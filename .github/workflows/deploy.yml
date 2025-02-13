@@ -57,7 +57,7 @@ jobs:
           key: ${{ secrets.SERVER_SSH_PRIVATE_KEY }}
           port: 22
           script: |
-            docker pull your-dockerhub-username/frontend-app:${{ github.sha }}
-            docker stop frontend-app || true
-            docker rm frontend-app || true
-            docker run -d --name frontend-app -p 80:80 your-dockerhub-username/frontend-app:${{ github.sha }}
+            docker pull ${{ secrets.DOCKER_USERNAME }}/hellozj-web:${{ github.sha }}
+            docker stop hellozj-web || true
+            docker rm hellozj-web || true
+            docker run -d --name hellozj-web -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/hellozj-web:${{ github.sha }}
