@@ -26,8 +26,8 @@ jobs:
         run: pnpm install
 
       # 运行测试
-      - name: Run tests
-        run: pnpm dev
+      # - name: Run tests
+      #   run: pnpm dev
 
       # 构建项目
       - name: Build project
