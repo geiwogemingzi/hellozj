@@ -36,7 +36,13 @@ jobs:
 
       # 将镜像保存为 tar 文件
       - name: Save Docker image to tar
-        run: docker save -o hellozj-web.tar hellozj-web:${{ github.sha }}
+        run: |
+          docker save -o /home/runner/work/hellozj-web.tar hellozj-web:${{ github.sha }}
+          chmod 644 /home/runner/work/hellozj-web.tar
+
+      # 列出文件以调试
+      - name: List files in current directory
+        run: ls -l /home/runner/work/
 
       # 将 tar 文件传输到服务器
       - name: Transfer tar file to server
@@ -46,8 +52,9 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_PRIVATE_KEY }}
           port: 22
-          source: "hellozj-web.tar"
-          target: "/tmp/"
+          source: "/home/runner/work/hellozj-web.tar"
+          target: "/home/${{ secrets.SERVER_USER }}/hellozj-web.tar"
+          debug: true
 
       # 在服务器上加载镜像并启动容器
       - name: Load image and start container on server
@@ -59,7 +66,7 @@ jobs:
           port: 22
           script: |
             # 加载镜像
-            docker load -i /tmp/hellozj-web.tar
+            docker load -i /home/${{ secrets.SERVER_USER }}/hellozj-web.tar
 
             # 停止并删除旧容器（如果存在）
             if docker ps -a --filter "name=hellozj-web" | grep -q hellozj-web; then
@@ -69,6 +76,3 @@ jobs:
 
             # 启动新容器
             docker run -d --name hellozj-web -p 8080:8080 hellozj-web:${{ github.sha }}
-
-            # 检查容器状态
-            docker ps -a --filter "name=hellozj-web"
