@@ -49,7 +49,7 @@ jobs:
         run: |
           scp -i ${{ secrets.SSH_PRIVATE_KEY }} \
               /home/runner/work/hellozj-web.tar \
-              ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:/tmp/hellozj-web.tar
+              ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:/tmp/
 
       # 在服务器上加载镜像并启动容器
       - name: Load image and start container on server
