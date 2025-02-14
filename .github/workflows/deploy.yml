@@ -1,9 +1,6 @@
 name: Build and Deploy Frontend to Docker Hub
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch: # 允许手动触发
 
 jobs:
@@ -27,7 +24,7 @@ jobs:
 
       # 安装依赖
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install
 
       # 构建项目
       - name: Build project
