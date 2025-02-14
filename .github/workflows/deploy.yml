@@ -53,7 +53,8 @@ jobs:
           key: ${{ secrets.SERVER_SSH_PRIVATE_KEY }}
           port: 22
           source: "/home/runner/work/hellozj-web.tar"
-          target: "/home/${{ secrets.SERVER_USER }}/hellozj-web.tar"
+          target: "/tmp/"
+          strip_components: 0
           debug: true
 
       # 在服务器上加载镜像并启动容器
