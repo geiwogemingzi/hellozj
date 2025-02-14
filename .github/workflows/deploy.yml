@@ -46,16 +46,10 @@ jobs:
 
       # 将 tar 文件传输到服务器
       - name: Transfer tar file to server
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.SERVER_IP }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_PRIVATE_KEY }}
-          port: 22
-          source: "/home/runner/work/hellozj-web.tar"
-          target: "/tmp/"
-          strip_components: 0
-          debug: true
+        run: |
+          scp -i ${{ secrets.SSH_PRIVATE_KEY }} \
+              /home/runner/work/hellozj-web.tar \
+              ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:/tmp/hellozj-web.tar
 
       # 在服务器上加载镜像并启动容器
       - name: Load image and start container on server
@@ -63,7 +57,7 @@ jobs:
         with:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_PRIVATE_KEY }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
           script: |
             # 加载镜像
