@@ -69,3 +69,6 @@ jobs:
 
             # 启动新容器
             docker run -d --name hellozj-web -p 8080:8080 hellozj-web:${{ github.sha }}
+
+            # 检查容器状态
+            docker ps -a --filter "name=hellozj-web"
