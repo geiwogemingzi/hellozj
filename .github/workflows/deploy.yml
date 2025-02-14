@@ -44,12 +44,17 @@ jobs:
       - name: List files in current directory
         run: ls -l /home/runner/work/
 
+      # 写入 SSH 私钥到临时文件
+      - name: Write SSH private key to file
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
       # 将 tar 文件传输到服务器
       - name: Transfer tar file to server
         run: |
-          scp -i ${{ secrets.SSH_PRIVATE_KEY }} \
-              /home/runner/work/hellozj-web.tar \
-              ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:/tmp/
+          scp -i ~/.ssh/id_rsa /home/runner/work/hellozj-web.tar ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:/tmp/
 
       # 在服务器上加载镜像并启动容器
       - name: Load image and start container on server
@@ -61,7 +66,7 @@ jobs:
           port: 22
           script: |
             # 加载镜像
-            docker load -i /home/${{ secrets.SERVER_USER }}/hellozj-web.tar
+            docker load -i /tmp/hellozj-web.tar
 
             # 停止并删除旧容器（如果存在）
             if docker ps -a --filter "name=hellozj-web" | grep -q hellozj-web; then
