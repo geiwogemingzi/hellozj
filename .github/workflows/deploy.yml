@@ -1,6 +1,9 @@
-name: Build and Deploy Frontend Locally
+name: Build and Deploy Frontend to Docker Hub
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch: # 允许手动触发
 
 jobs:
@@ -24,47 +27,29 @@ jobs:
 
       # 安装依赖
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
       # 构建项目
       - name: Build project
         run: pnpm run build
 
+      # 登录到 Docker Hub
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
       # 构建 Docker 镜像
       - name: Build Docker image
-        run: docker build -t hellozj-web:${{ github.sha }} .
+        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/hellozj-web:${{ github.sha }} .
 
-      # 将镜像保存为 tar 文件
-      - name: Save Docker image to tar
-        run: |
-          docker save -o /home/runner/work/hellozj-web.tar hellozj-web:${{ github.sha }}
-          chmod 644 /home/runner/work/hellozj-web.tar
+      # 推送 Docker 镜像到 Docker Hub
+      - name: Push Docker image
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/hellozj-web:${{ github.sha }}
 
-      # 列出文件以调试
-      - name: List files in current directory
-        run: ls -l /home/runner/work/
-
-      # 写入 SSH 私钥到临时文件
-      - name: Write SSH private key to file
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-
-      # 获取服务器主机密钥并写入 known_hosts
-      - name: Add server to known_hosts
-        run: |
-          mkdir -p ~/.ssh
-          ssh-keyscan ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
-          chmod 644 ~/.ssh/known_hosts
-
-      # 将 tar 文件传输到服务器
-      - name: Transfer tar file to server
-        run: |
-          scp -i ~/.ssh/id_rsa /home/runner/work/hellozj-web.tar ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:/tmp/
-
-      # 在服务器上加载镜像并启动容器
-      - name: Load image and start container on server
+      # 部署到服务器（通过 SSH 拉取镜像并运行容器）
+      - name: Deploy to server
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SERVER_IP }}
@@ -72,8 +57,8 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
           script: |
-            # 加载镜像
-            docker load -i /tmp/hellozj-web.tar
+            # 拉取最新的镜像
+            docker pull ${{ secrets.DOCKER_USERNAME }}/hellozj-web:${{ github.sha }}
 
             # 停止并删除旧容器（如果存在）
             if docker ps -a --filter "name=hellozj-web" | grep -q hellozj-web; then
@@ -82,4 +67,4 @@ jobs:
             fi
 
             # 启动新容器
-            docker run -d --name hellozj-web -p 8080:8080 hellozj-web:${{ github.sha }}
+            docker run -d --name hellozj-web -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/hellozj-web:${{ github.sha }}
