@@ -38,12 +38,12 @@ jobs:
       # 构建 Docker 镜像
       - name: Build Docker image
         run: |
-          docker build -t ${{ secrets.ALIYUN_ACR_REGISTRY }}/hellozj-web:${{ github.sha }} .
+          docker build -t ${{ secrets.ALIYUN_ACR_REGISTRY }}:${{ github.sha }} .
 
       # 推送 Docker 镜像到阿里云镜像仓库
       - name: Push Docker image
         run: |
-          docker push ${{ secrets.ALIYUN_ACR_REGISTRY }}/hellozj-web:${{ github.sha }}
+          docker push ${{ secrets.ALIYUN_ACR_REGISTRY }}:${{ github.sha }}
 
       # 部署到服务器（通过 SSH 拉取镜像并运行容器）
       - name: Deploy to server
