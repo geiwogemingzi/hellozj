@@ -67,4 +67,4 @@ jobs:
             fi
 
             # 启动新容器
-            docker run -d --name zjzc -p 8080:8080 ${{ secrets.ALIYUN_ACR_REGISTRY }}:${{ github.sha }}
+            docker run -d --name zjzc -p 8080:80 ${{ secrets.ALIYUN_ACR_REGISTRY }}:${{ github.sha }}
