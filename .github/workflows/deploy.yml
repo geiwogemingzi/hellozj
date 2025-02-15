@@ -58,13 +58,13 @@ jobs:
             echo "${{ secrets.ALIYUN_ACR_PASSWORD }}" | docker login --username ${{ secrets.ALIYUN_ACR_USERNAME }} --password-stdin ${{ secrets.ALIYUN_ACR_REGISTRY }}
 
             # 拉取最新的镜像
-            docker pull ${{ secrets.ALIYUN_ACR_REGISTRY }}/hellozj-web:${{ github.sha }}
+            docker pull ${{ secrets.ALIYUN_ACR_REGISTRY }}:${{ github.sha }}
 
             # 停止并删除旧容器（如果存在）
-            if docker ps -a --filter "name=hellozj-web" | grep -q hellozj-web; then
-              docker stop hellozj-web || true
-              docker rm hellozj-web || true
+            if docker ps -a --filter "name=zjzc" | grep -q zjzc; then
+              docker stop zjzc || true
+              docker rm zjzc || true
             fi
 
             # 启动新容器
-            docker run -d --name hellozj-web -p 8080:8080 ${{ secrets.ALIYUN_ACR_REGISTRY }}/hellozj-web:${{ github.sha }}
+            docker run -d --name zjzc -p 8080:8080 ${{ secrets.ALIYUN_ACR_REGISTRY }}/zjzc:${{ github.sha }}
